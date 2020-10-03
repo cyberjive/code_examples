@@ -1,0 +1,17 @@
+--------------------------------------------
+-- SQL Date statements for returning 
+-- the first and last of the month
+-- Not intended for production use
+-- ..although you could...we do...
+-- 10072017 - fix column header names,
+-- fix previous ME calc, add next ME calc
+-------------------------------------------
+
+
+SELECT DATEADD(mm,-1,DATEADD(mm, DATEDIFF(m,0,GETDATE()),0)) AS '1st Last Month'
+ ,DATEADD(mm,-1,DATEADD(mm, DATEDIFF(m,0,GETDATE())+1,0)) AS '1st This Month'
+ ,DATEADD(mm,-1,DATEADD(mm, DATEDIFF(m,0,GETDATE())+2,0)) AS '1st Next Month'
+ ,DATEADD(mm, 0, DATEADD(mm, DATEDIFF(mm, 0, GETDATE()), -1)) AS 'Last Month End'
+ ,DATEADD(mm, 0, DATEADD(mm, DATEDIFF(mm, 0, GETDATE())+1, -1)) AS 'Current Month End'
+ ,DATEADD(mm, 0, DATEADD(mm, DATEDIFF(mm, 0, GETDATE())-1,-1)) AS 'Previous Month End'
+ ,DATEADD(mm, 0, DATEADD(mm, DATEDIFF(mm, 0, GETDATE())+1,-1)) AS 'Next Month End' 

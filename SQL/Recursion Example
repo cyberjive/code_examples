@@ -1,0 +1,43 @@
+--Example of Recursive CTE
+--Not inteded for production use
+
+with test(col)
+as
+(select col = 1
+	union all
+select test.col + 1
+from test
+where test.col < 10)
+
+select * from test;
+
+with incrementer(prev_val) as (
+  select 1 -- anchor member
+  union all
+  select -- recursive member
+    incrementer.prev_val + 1
+  from incrementer
+  where prev_val < 10 -- termination condition
+)
+
+select * from incrementer;
+
+with test2(orderid, empid, shippeddate, level, qid)
+as
+(select so.orderid
+	, so.empid
+	, so.shippeddate
+	, level = 1
+	, qid = 1
+	from Sales.Orders as so
+	where so.shippeddate IS NULL
+		union all
+ select test2.orderid
+	, test2.empid
+	, test2.shippeddate
+	, level = level + 1
+	, qid = 2 
+	from test2
+	where level < 11)
+
+select * from test2 OPTION (MAXRECURSION 1000);

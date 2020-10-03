@@ -1,0 +1,24 @@
+--===========================================
+-- Author: JSP
+-- Create Date: ???
+-- Description: Some MySql for a side project
+=============================================
+
+
+(select name, length, secs, path
+from cryptic_commercials
+where id in (55, 56, 57)
+order by RAND()
+limit 1)
+union all
+(select name, length, secs, path
+from cryptic_commercials
+where id not in (55, 56, 57)
+order by RAND()
+limit 1)
+union all
+(select name, length, secs, path
+from cryptic_commercials
+where id not in (55, 56, 57)
+order by RAND()
+limit 1)

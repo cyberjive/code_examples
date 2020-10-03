@@ -1,0 +1,26 @@
+--------------------------------------------
+-- FOR XML Clause Playing
+-- Not intended for production use
+-------------------------------------------
+
+
+SELECT pp.BusinessEntityID AS "@BusinessID"
+, pbe.BusinessEntityID AS "@BusinessEntityID" 
+, pp.PersonType AS "@PersonType"
+, pp.Title AS "@Title"
+, pp.rowguid AS "@RowGuid"
+, pp.FirstName AS "Names/Name/FirstName"
+, pp.MiddleName AS "Names/Name/MiddleName"
+, pp.LastName AS "Names/Name/LastName"
+, pba.AddressID AS "AddressInfo/Address/@AddressID"
+, pa.AddressLine1 AS "AddressInfo/Address/AddressLine1"
+, pa.AddressLine2 AS "AddressInfo/Address/AddressLin2"
+, pa.City AS "AddressInfo/Address/AddressCity"
+, pea.EmailAddressID AS "ContactInfo/Contact/@EmailID"
+, pea.EmailAddress AS "ContactInfo/Contact/Email"
+FROM Person.Person AS pp WITH (NOLOCK)
+LEFT JOIN Person.BusinessEntity AS pbe WITH (NOLOCK) ON pp.BusinessEntityID = pbe.BusinessEntityID
+LEFT JOIN Person.BusinessEntityAddress AS pba WITH (NOLOCK) ON pbe.BusinessEntityID = pba.BusinessEntityID
+LEFT JOIN Person.Address AS pa WITH (NOLOCK) ON pba.AddressID = pa.AddressID
+LEFT JOIN Person.EmailAddress AS pea WITH (NOLOCK) ON pp.BusinessEntityID = pea.BusinessEntityID
+FOR XML PATH ('Person'), ROOT('Persons')

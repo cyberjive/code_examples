@@ -1,0 +1,102 @@
+-------------------------------------
+-- AW2012 rptg sproc playing
+-- Not intended for Production use
+-------------------------------------
+USE AdventureWorks2012
+	GO
+
+--select * from Production.Product
+--select * from Sales.Customer
+--select * from Sales.SalesOrderDetail
+--select * from Person.Person
+--select * from Sales.Customer
+
+--exec spGetAccountInformation 29484, 'AW00029484', 44132 -- test, one row only
+
+DECLARE @CustomerID varchar(10)
+, @AccountNumber varchar(20)
+, @SalesOrderID varchar(10)
+
+--SET @AccountNumber = 'AW00029484'
+--SET @SalesOrderID = 44132
+
+SELECT sc.CustomerID
+, sc.PersonID
+, sc.StoreID
+, sc.TerritoryID
+, sc.AccountNumber
+, sc.ModifiedDate
+, soh.SalesOrderID
+, soh.OrderDate
+, soh.DueDate
+, soh.ShipDate
+, soh.Status
+, soh.OnlineOrderFlag
+, soh.SalesOrderNumber
+, soh.AccountNumber
+, soh.SalesPersonID
+, soh.SalesPersonID
+, soh.TerritoryID
+, soh.BillToAddressID
+, soh.ShipToAddressID
+, soh.ShipMethodID
+, soh.SubTotal
+, soh.TaxAmt
+, soh.Freight
+, soh.TotalDue
+, sod.SalesOrderDetailID
+, sod.CarrierTrackingNumber
+, sod.OrderQty
+, sod.ProductID
+, sod.SpecialOfferID
+, sod.UnitPrice
+, sod.UnitPriceDiscount
+, sod.LineTotal
+FROM Sales.Customer AS sc WITH (NOLOCK)
+LEFT JOIN Sales.SalesOrderHeader AS soh WITH (NOLOCK)
+	ON sc.CustomerID = soh.CustomerID
+LEFT JOIN Sales.SalesOrderDetail AS sod WITH (NOLOCK)
+	ON soh.SalesOrderID = sod.SalesOrderID
+WHERE 1 = 1
+AND sc.PersonID IS NOT NULL
+AND sc.StoreID IS NOT NULL
+AND
+(
+	(sc.PersonID = @CustomerID OR @CustomerID IS NULL)
+	AND
+	(sc.AccountNumber = @AccountNumber OR @AccountNumber IS NULL)
+	AND
+	(soh.SalesOrderID = @SalesOrderID OR @SalesOrderID IS NULL) 
+)
+GROUP BY sc.CustomerID
+, soh.SalesOrderID
+, sc.PersonID
+, sc.StoreID
+, sc.TerritoryID
+, sc.AccountNumber
+, sc.ModifiedDate
+, soh.OrderDate
+, soh.DueDate
+, soh.ShipDate
+, soh.Status
+, soh.OnlineOrderFlag
+, soh.SalesOrderNumber
+, soh.AccountNumber
+, soh.SalesPersonID
+, soh.SalesPersonID
+, soh.TerritoryID
+, soh.BillToAddressID
+, soh.ShipToAddressID
+, soh.ShipMethodID
+, soh.SubTotal
+, soh.TaxAmt
+, soh.Freight
+, soh.TotalDue
+, sod.SalesOrderDetailID
+, sod.CarrierTrackingNumber
+, sod.OrderQty
+, sod.ProductID
+, sod.SpecialOfferID
+, sod.UnitPrice
+, sod.UnitPriceDiscount
+, sod.LineTotal

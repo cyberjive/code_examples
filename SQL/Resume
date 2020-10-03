@@ -1,0 +1,86 @@
+--------------------------------------------
+-- Resume by code and visualizaiton
+-- Not intended for production use
+-- TODO: Add grouping, add skills, 
+-- adjust granularity
+-------------------------------------------
+
+--DECLARE @tmpMainSkills TABLE
+--(
+--	SName		varchar(25),
+--	SLevel		int
+--)
+
+--INSERT INTO @tmpMainSkills
+--VALUES('T-SQL', 6)
+--, ('SSRS', 6)
+--, ('SQL SERVER', 5)
+--, ('SSIS', 5)--I'd rather just write the code if we're being honest...
+
+
+----SELECT * FROM @tmpMainSkills;
+
+--DECLARE @tmpOtherSkills TABLE
+--(
+--	SName		varchar(25),
+--	SLevel		int
+--)
+
+--INSERT INTO @tmpOtherSkills
+--VALUES('Relational DB''s', 6)
+--,('Database Design', 6)
+--,('ETL', 6)--...hence the six here
+--,('Star Schema', 5)
+--,('Data Visulization', 5)
+--,('Reporting', 6)
+
+----SELECT * FROM @tmpOtherSkills;
+
+--DECLARE @tmpOtherLanguagues TABLE
+--(
+--	PLanguage varchar(15),
+--	SLevel	  int
+--)
+
+--INSERT INTO @tmpOtherLanguagues
+--VALUES('C#', 3)
+--,('R', 3)
+--,('Javascript', 2)
+--,('Python', 2) --but I like this one the most TBH
+--,('Java', 1)
+
+----SELECT * FROM @tmpOtherLanguagues;
+
+--SELECT * FROM @tmpMainSkills
+--,@tmpOtherSkills
+--,@tmpOtherLanguagues
+
+--REWRITE
+
+DECLARE @tmpSkills TABLE
+(
+	ID		int,
+	Skill	varchar(25),
+	Cat		varchar(10),
+	SValue	int--semi-arbitrary, for clustering, Main == 5, FrameWork == 3, PolyGlot = 1
+)
+
+INSERT INTO @tmpSkills
+VALUES(1, 'T-SQL', 'Main', 5)
+, (2, 'SSRS', 'Main', 5)
+, (3, 'SQL SERVER', 'Main', 5)
+, (4, 'SSIS', 'Main', 5)
+, (5, 'Relational DB''s', 'FrameWork', 3)
+, (6, 'Database Design', 'FrameWork', 3)
+, (7, 'ETL', 'Related', 3)
+, (8, 'Star Schema', 'FrameWork', 3)
+, (9, 'Data Visulization', 'FrameWork', 3)
+, (10, 'Reporting', 'FrameWork', 3)
+, (12, 'Data Science', 'FrameWork', 3)
+, (13, 'C#', 'PolyGlot', 1)
+,(14, 'R', 'PolyGlot', 1)
+,(15, 'Javascript', 'PolyGlot', 1)
+,(16, 'Python', 'PolyGlot', 1) --and this one really wins IMO
+,(17, 'Java', 'PolyGlot', 1)
+
+SELECT * FROM @tmpSkills;

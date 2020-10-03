@@ -1,0 +1,213 @@
+--SFMC Email Meta Data Munging and Sorting--
+/****** Script for SelectTopNRows command from SSMS  ******/
+SELECT TOP (100000) [ClientID]
+      ,[SendID]
+      ,[SubscriberKey]
+      ,[EmailAddress]
+      ,[SubscriberID]
+      ,[ListID]
+      ,[EventDate]
+      ,[EventType]
+      ,[SendURLID]
+      ,[URLID]
+      ,[URL]
+      ,[Alias]
+      ,[BatchID]
+      ,[TriggeredSendExternalKey]
+      ,[IsUnique]
+      ,[IsUniqueForURL]
+  FROM [Work].[dbo].[Clicks_Combined_Dirty]
+
+  --SELECT REPLACE(ClientID, '"', ' ')
+  --FROM [Work].[dbo].[Clicks_Combined_Dirty]
+
+  --Clean Records
+  --UPDATE Clicks_Combined_Dirty
+  --SET ClientID = REPLACE(ClientID, '"', ' ')
+  --SET SubscriberKey = REPLACE(SubscriberKey, '"', ' ')
+  --SET EmailAddress = REPLACE(EmailAddress, '"', ' ')
+  --SET EventType = REPLACE(EventType, '"', ' ')
+  --SET URL = REPLACE(URL, '"', ' ')
+  --SET Alias = REPLACE(Alias, '"', ' ')
+  --SET TriggeredSendExternalKey = REPLACE(EmailAddress, '"', ' ')
+  --SET IsUnique = REPLACE(IsUnique, '"', ' ')
+  --SET IsUniqueForURL = REPLACE(IsUniqueForURL, '"', ' ')
+  --SET IsUniqueForURL = REPLACE(IsUniqueForURL, ',', ' ')
+
+  --SET ClientID = REPLACE(ClientID, '', '')
+  --SET SubscriberKey = REPLACE(SubscriberKey, ' ', '')
+  --SET EmailAddress = REPLACE(EmailAddress, ' ', '')
+  --SET EventType = REPLACE(EventType, ' ', '')
+  --SET URL = REPLACE(URL, ' ', '')
+  --SET Alias = REPLACE(Alias, ' ', '')
+  --SET TriggeredSendExternalKey = REPLACE(EmailAddress, ' ', '')
+  --SET IsUnique = REPLACE(IsUnique, ' ', '')
+  --SET IsUniqueForURL = REPLACE(IsUniqueForURL, ' ', '')
+  --SET IsUniqueForURL = REPLACE(IsUniqueForURL, ' ', '')
+
+--Counts
+SELECT COUNT(DISTINCT SubscriberKey) AS 'Distinct Clicks'
+FROM Clicks_Combined_Dirty --802
+	UNION ALL
+SELECT COUNT(DISTINCT SubscriberKey) AS 'Distinct Opens'
+FROM Opens_Combined_Dirty -- 3210
+	UNION ALL
+SELECT COUNT(DISTINCT SubscriberKey) AS 'Distinct Sends'
+FROM Sends_Combined_Dirty -- 18188
+
+--Look for filter criteria
+SELECT DISTINCT(cd.SubscriberKey) 
+FROM Clicks_Combined_Dirty AS cd
+WHERE cd.SubscriberKey LIKE 'T%'
+	OR
+	  cd.SubscriberKey LIKE 't%'
+	OR
+	  cd.SubscriberKey  LIKE 'c%'	
+
+--Grab clean reocrds
+--SELECT COUNT(DISTINCT(x.SubscriberKey)) AS 'Count' --771
+--FROM(
+SELECT x.SubscriberKey AS 'ID'
+	,CAST(x.EventDate AS DATE) AS 'Date'
+	,COUNT(DISTINCT(x.SubscriberKey)) AS 'Clicks'
+FROM(
+SELECT sd.SubscriberKey
+		, sd.EventType AS 'Sent'
+		, cd.EventType AS 'Click'
+		, od.EventType AS 'Open'
+		, sd.SendID
+		, sd.EventDate AS 'SendDt'
+		, cd.EventDate AS 'EventDt'
+		, od.EventDate AS 'OpenDt'
+		-- cd.ClientID
+		--, cd.SendID
+		--, cd.SubscriberKey AS 'ClickKey' 
+		--, od.SubscriberKey AS 'OpenKey'
+		--, cd.EmailAddress
+		--, cd.ListID
+		--, cd.EventDate
+		--, od.EventDate
+		--, cd.SendURLID
+		--, cd.URLID
+		--, cd.URL
+		--, cd.Alias
+		--, cd.BatchID
+		--, cd.TriggeredSendExternalKey
+		--, cd.IsUnique
+		--, cd.IsUniqueForURL
+FROM Sends_Combined_Dirty AS sd
+LEFT JOIN Opens_Combined_Dirty AS od
+	ON sd.SubscriberKey = od.SubscriberKey
+LEFT JOIN Clicks_Combined_Dirty AS cd
+	ON sd.SubscriberKey = cd.SubscriberKey
+WHERE 1=1
+	AND cd.IsUnique = 'TRUE'
+	OR od.IsUnique = 'TRUE'
+	AND sd.SubscriberKey NOT IN (SELECT DISTINCT(sd.SubscriberKey) 
+								 FROM Sends_Combined_dirty AS sd
+								 WHERE sd.SubscriberKey LIKE 'T%'
+									OR
+								sd.SubscriberKey LIKE 't%'
+									OR
+								sd.SubscriberKey  LIKE 'c%'--)) AS x
+GROUP BY sd.SubscriberKey
+		,sd.EventDate
+		,cd.EventDate
+		,od.EventDate
+ORDER BY CAST(x.EventDate AS DATETIME)
+
+
+--Intial Recordset
+SELECT  sd.EventDate AS 'SendDt',
+		sd.SendID
+		, sd.SubscriberKey
+		, sd.EventType AS 'Sent'
+		, cd.EventType AS 'Click'
+		, od.EventType AS 'Open'
+		, cd.EventDate AS 'ClickDt'
+		, od.EventDate AS 'OpenDt'
+		-- cd.ClientID
+		--, cd.SendID
+		--, cd.SubscriberKey AS 'ClickKey' 
+		--, od.SubscriberKey AS 'OpenKey'
+		--, cd.EmailAddress
+		--, cd.ListID
+		--, cd.EventDate
+		--, od.EventDate
+		--, cd.SendURLID
+		--, cd.URLID
+		--, cd.URL
+		--, cd.Alias
+		--, cd.BatchID
+		--, cd.TriggeredSendExternalKey
+		--, cd.IsUnique
+		--, cd.IsUniqueForURL
+FROM Sends_Combined_Dirty AS sd
+JOIN Opens_Combined_Dirty AS od
+	ON sd.SubscriberKey = od.SubscriberKey
+JOIN Clicks_Combined_Dirty AS cd
+	ON sd.SubscriberKey = cd.SubscriberKey
+WHERE 1=1
+	AND cd.IsUnique = 'TRUE'
+	OR od.IsUnique = 'TRUE'
+	AND sd.SubscriberKey NOT IN (SELECT sd.SubscriberKey 
+								 FROM Sends_Combined_dirty AS sd
+								 WHERE sd.SubscriberKey LIKE 'T%'
+									OR
+								sd.SubscriberKey LIKE 't%'
+									OR
+								sd.SubscriberKey  LIKE 'c%')--) AS x
+GROUP BY sd.SubscriberKey
+		,sd.EventDate
+		,cd.EventDate
+		,od.EventDate
+		,sd.EventType
+		,cd.EventType
+		,od.EventType
+
+
+SELECT x.[ID]
+	  ,x.[Date]
+	  ,x.[Send]
+	  ,x.[Open]
+	  ,x.[Click]
+FROM (
+SELECT sd.SubscriberKey AS 'ID' 
+	  --,CAST(sd.EventDate AS DATE) AS 'SendDt'
+	  ,sd.EventDate AS 'Date'
+	  ,CASE WHEN sd.EventType = 'Sent' THEN 1 ELSE 0 END AS 'Send'
+	  ,CASE WHEN od.EventType = 'Open' THEN 1 ELSE 0 END AS 'Open'
+	  ,CASE WHEN cd.EventType = 'Click' THEN 1 ELSE 0 END AS 'Click'
+	  ,ROW_NUMBER() OVER (PARTITION BY sd.SubscriberKey, sd.EventDate Order By sd.EventDate) AS rownum
+FROM Sends_Combined_Dirty AS sd
+LEFT JOIN Opens_Combined_Dirty AS od
+	ON sd.SubscriberKey= od.SubscriberKey
+	AND sd.SendID = od.SendID
+LEFT JOIN Clicks_Combined_Dirty AS cd
+	ON od.SubscriberKey = cd.SubscriberKey
+	AND od.SendID = cd.SendID) AS x
+WHERE x.rownum =1
+AND x.[ID] NOT LIKE ('T%')
+AND x.[ID] NOT LIKE ('t%')
+AND x.[ID] NOT LIKE ('c%')
+AND x.[ID] NOT LIKE ('I%')
+AND x.[ID] NOT LIKE ('i%')
+AND x.[ID] NOT LIKE ('A%')
+AND x.[ID] NOT LIKE ('a%')
+AND x.[ID] NOT LIKE ('s%')
+GROUP BY x.[ID]
+		,x.Date
+		,x.[Send]
+	    ,x.[Open]
+	    ,x.[Click]
+ORDER BY CAST(x.[Date] AS DATE) ASC
+	,x.[ID]
+--??
+SELECT od.SubscriberKey
+	  ,CAST(od.EventDate AS DATE) AS 'OpenDt'
+	  ,od.EventType
+	  --,od.EventType
+FROM Opens_Combined_Dirty AS od
+ORDER BY SubscriberKey
+
+

@@ -1,0 +1,32 @@
+-------------------------------------
+-- FizzBuzz challenge from SS Central
+-- Not intended for production
+-- just for fun
+------------------------------------
+
+--declare start and end number for 1-100 list
+DECLARE @start	int
+	SET @start = 1
+DECLARE @end	int
+	SET @end = 100
+;
+
+--spin up recursive cte to generate all discrete values
+WITH gen_nums AS
+(
+	SELECT @start as num
+	UNION ALL
+	SELECT num + 1
+	FROM gen_nums
+	WHERE num + 1 <= @end
+)
+
+--test output
+--SELECT * FROM gen_nums
+--OPTION (MAXRECURSION 1000)
+
+SELECT g.num,
+	CASE WHEN g.num % 3 = 0 AND g.num % 5 = 0 THEN 'FizzBuzz'
+		 WHEN g.num % 5 = 0 THEN 'Buzz'
+		 WHEN g.num % 3 = 0 THEN 'Fizz' END AS 'FizzBuzz'
+FROM gen_nums as g
